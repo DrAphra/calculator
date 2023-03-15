@@ -1,9 +1,11 @@
-let runningTotal = 0;
-let buffer = "0";
-let previousOperator;
+let runningTotal = 0; // tracks the current total value
+let buffer = "0"; //stores the current input value as a string
+let previousOperator; //stores the previous math operator pressed by the user
+let bufferHasDecimal = false;
 
 const screen = document.querySelector(".screen");
 
+//This function takes a value argument and checks if it is a number or a symbol
 function buttonClick(value){
     if(isNaN(value)){
         handleSymbol(value);
@@ -12,27 +14,32 @@ function buttonClick(value){
     }
     screen.innerText = buffer;
 }
-
+// this unction takes a symbol argument and performs different actions based on the symbol pressed by the user
 function handleSymbol(symbol){
     switch(symbol){
         case "C":
             buffer = "0";
             runningTotal = 0;
+            bufferHasDecimal = false;
             break;
         case "=":
             if(previousOperator === null){
                 return
             }
-            flushOperation(parseInt(buffer));
+            flushOperation(parseFloat(buffer));
             previousOperator = null;
             buffer = runningTotal;
             runningTotal = 0;
+            bufferHasDecimal = false;
             break;
         case "←":
             if(buffer.length === 1){
                 buffer = "0";
             } else {
-                buffer = buffer.subString(0, buffer.length - 1);
+                buffer = buffer.substring(0, buffer.length - 1);
+            }
+            if (buffer.indexOf(".") === -1) {
+                bufferHasDecimal = false;
             }
             break;
         case "+":
@@ -41,37 +48,45 @@ function handleSymbol(symbol){
         case "÷":
             handleMath(symbol);
             break;
+        case ",":
+            if (bufferHasDecimal === false) {
+                buffer += ".";
+                bufferHasDecimal = true;
+            }
+            break;
     }
 }
-
+//function takes a symbol argument and performs different actions based on the operator pressed by the user
 function handleMath(symbol){
     if(buffer === "0"){
         return;
     }
 
-    const intBuffer = parseInt(buffer);
+    const floatBuffer = parseFloat(buffer);
 
     if(runningTotal === 0){
-        runningTotal = intBuffer;
+        runningTotal = floatBuffer;
     } else{
-        flushOperation(intBuffer);
+        flushOperation(floatBuffer);
     }
     previousOperator = symbol;
     buffer = "0";
+    bufferHasDecimal = false;
 }
 
-function flushOperation(intBuffer){
+//this function takes an intBuffer argument and performs a mathematical operation on runningTotal and intBuffer based on the previous operator stored in previousOperator. It then updates runningTotal with the result of the operation.
+function flushOperation(floatBuffer){
     if (previousOperator === "+"){
-        runningTotal += intBuffer;
-    }else if(previousOperator === "−"){
-        runningTotal -= intBuffer;
+        runningTotal += floatBuffer;
+    } else if(previousOperator === "−"){
+        runningTotal -= floatBuffer;
     } else if(previousOperator === "×"){
-        runningTotal *= intBuffer
+        runningTotal *= floatBuffer
     } else if(previousOperator === "÷"){
-        runningTotal /= intBuffer;
+        runningTotal /= floatBuffer;
     }
 }
-
+//this function takes a numberString argument and updates the buffer variable with the input number. If buffer is already "0", it replaces it with numberString
 function handleNumber (numberString){
     if(buffer === "0"){
         buffer = numberString;
@@ -79,7 +94,7 @@ function handleNumber (numberString){
         buffer += numberString;
     }
 }
-
+//This function adds an event listener to the calculator buttons and calls the buttonClick function with the button's inner text whenever a button is clicked
 function init(){
     document.querySelector(".calc-buttons").addEventListener("click", function(event){
         buttonClick(event.target.innerText);
