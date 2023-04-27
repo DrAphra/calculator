@@ -85,6 +85,7 @@ function flushOperation(floatBuffer){
     } else if(previousOperator === "÷"){
         runningTotal /= floatBuffer;
     }
+    runningTotal = parseFloat(runningTotal.toFixed(10)); // Round to 10 decimal places
 }
 //this function takes a numberString argument and updates the buffer variable with the input number. If buffer is already "0", it replaces it with numberString
 function handleNumber (numberString){
